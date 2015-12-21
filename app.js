@@ -44,47 +44,49 @@ app.configure('production', function(){
 //app.get("/movie/pages/:id", routes.detail);
 
 app.get("/", function(req, res){
-  // res.render("index", {
-  //   title:"index",
-  //   movies:[{
-  //     title:"火星救援",
-  //     _id:"1",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"2",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"3",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"4",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"5",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"6",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"7",
-  //     poster:"www.fdsafafsafwerew"
-  //   },{
-  //     title:"火星救援",
-  //     _id:"8",
-  //     poster:"www.fdsafafsafwerew"
-  //   }]
-  // });
+  res.render("index", {
+    title:"index",
+    layout:false,
+    movies:[{
+      title:"火星救援",
+      _id:"1",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"2",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"3",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"4",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"5",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"6",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"7",
+      poster:"www.fdsafafsafwerew"
+    },{
+      title:"火星救援",
+      _id:"8",
+      poster:"www.fdsafafsafwerew"
+    }]
+  });
 });
 
 app.get("/movie/:id", function(req, res){
   res.render("detail",{
     title:"detail",
+    layout:false,
     movie:{
       doctor:"冯小刚",
       country:"美国",
@@ -101,6 +103,7 @@ app.get("/movie/:id", function(req, res){
 app.get("/admin/movie", function(req, res){
   res.render("admin",{
     title:"admin",
+    layout:false,
     movie:{
       title:"",
       doctor:"",
@@ -117,7 +120,8 @@ app.get("/admin/movie", function(req, res){
 app.get("/admin/list", function(req, res){
   res.render("list",{
     title:"",
-    movie:[{
+    layout:false,
+    movies:[{
       doctor:"冯小刚",
       _id:1,
       country:"美国",

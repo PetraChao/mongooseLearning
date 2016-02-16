@@ -1,0 +1,24 @@
+{
+  "name": "mongooseLearning",
+  "description": "0.0.1",
+  "main": "app.js",
+  "authors": [
+    "petra <824494244@qq.com>"
+  ],
+  "license": "MIT",
+  "homepage": "/views/pages/index.jade",
+  "moduleType": [
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "bootstrap": "~3.3.6",
+    "moment": "~2.11.2"
+  }
+}

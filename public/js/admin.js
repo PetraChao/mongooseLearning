@@ -9,10 +9,7 @@ $(function(){
     }).done(function(results){
       if(results.success ==1 ){
         if(tr.length > 0){
-          console.log("before remove tr:", tr);
           var afterReMove = tr.remove();
-          console.log("after remove tr:", tr);
-          console.log("afterReMove:", afterReMove);
         }
       }
     });

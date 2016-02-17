@@ -79,9 +79,12 @@ app.get("/admin/update/:id", function(req, res){
   var id = req.params.id;
   if(id){
     Movie.findById(id, function(err, movie){
+
+      console.log("修改页面");
+
       res.render("admin", {
         layout:false,
-        title:"后台更新页面",
+        title:"修改页面",
         movie: movie
       });
     });
@@ -94,23 +97,30 @@ app.post("/admin/movie/new", function(req, res){
   var id = req.body.movie._id;
   var movieObj = req.body.movie;
   var _movie;
-  console.log("创建页req.body._id: "+id);
 
-  //如果该电影存在
+  console.log("创建页或修改页的req.body._id: "+id);
+  //如果该电影存在，也就是电影修改
   if( id != ""){
-    console.log("该电影存在");
     Movie.findById(id, function(err, movie){
       if(err){
         console.log(err);
       }
-//用另外的对象里面的字段替换调原来的字段
-//.extend(原来的对象，新post的对象)
+
+    //用另外的对象里面的字段替换调原来的字段
+    //.extend(原来的对象，新post的对象)
       _movie = _.extend(movie, movieObj);
-      _movie.save(function(err, movie){
+
+      console.log("替代旧对象", _movie);
+
+        _movie.save(function(err, movie){
         if(err){
           console.log(err);
         }
+        
+        //跳转到列表页
+         res.redirect("/admin/list");
       });
+
     });
   }
 
@@ -136,7 +146,7 @@ app.post("/admin/movie/new", function(req, res){
          res.redirect("/movie/" + movie._id);
       });
   }
-})
+});
 
 //详情页
 app.get("/movie/:id", function(req, res){

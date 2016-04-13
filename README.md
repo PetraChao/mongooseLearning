@@ -1,6 +1,10 @@
 # mongooseLearning
 node+mongodb
 
+##所需安装环境
+node
+mongodb
+
 ##初始化
 npm install
 bower install

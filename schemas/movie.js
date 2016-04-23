@@ -1,5 +1,7 @@
+//引入mongoose
 var mongoose = require("mongoose");
 
+//建造schema
 var Movieschema = new mongoose.Schema({
 	doctor: String,
 	title: String,
@@ -35,7 +37,6 @@ Movieschema.statics = {
   fetch: function (cb){
     return this
       .find({})
-      .sort("meta.updateAt")
       .exec(cb);
   },
   findById: function (id, cb){

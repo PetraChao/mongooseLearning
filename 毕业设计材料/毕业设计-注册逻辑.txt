@@ -1,0 +1,63 @@
+取得表单数据的方式有以下几种：
+
+1.req.body.user;
+用body取值，这个值有三种传递方式：
+
+1.form表单post
+在form表单的input中设定属性值，例如input#signupName.form-control(name="user[name]", type="text")，引入中间件express.bodyParser()，内容初始化成一个对象，也就是说此时req.body为form表单传递过来的一个对象，为
+{user:{name: "userName"}}，user是对象的一个属性，用“.”符号取得req.body.user
+
+用法：
+app.post('/user/signup', function(req,res){
+//通过req.body取值
+  var _user = req.body.user;
+});
+
+ajax
+post方式：
+$.ajax({
+     type: 'POST',
+     url: url ,
+    data: data ,
+    success: success 
+});
+req.body取得ajax传递过来的data的值
+
+get方式：
+$.ajax({
+type: "POST",
+cache: false,
+url: "movie/admin?userId=" + userId,
+});
+req.body取得ajax传递过来的data的值
+
+2.req.query
+用法：在url后面加上一个问号，将参数以键值对的方式传递以&方式连接，通过req.query.userId;取值
+app.post('/user/signup/?userId=1112&userName=pc', function(req,res){
+  var _user = req.query.userId;
+});
+form表单的get方式
+ form(action="/admin/update/#{movieId}" method="get" name="jumpUpdate")
+            input(type="hidden" name="movieObjString" value="#{userId}")
+
+3.路由
+用法：
+app.post('/user/signup/:userId', function(req,res){
+  var _user = req.params.userId;
+});
+
+4.req.param("user");
+对body，query，路由的封装。也就是说，这三种方式传递过来的值，它都可以接受。按优先级的排序只取得其中一个的值，这个优先级是：1.路由，2.req.body 3.req.query
+例如：
+地址为：/user/signup/1111?userId=1112
+body传值为{userid:1113}
+那么将取得的值为1111.
+
+地址为：/user/signup/?userId=1112
+body传值为{userid:1113}
+那么将取得的值为1113
+
+地址为：/user/signup/?userId=1112
+body没有传值
+那么将取得的值为1112
+

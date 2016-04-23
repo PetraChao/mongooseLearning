@@ -3,11 +3,19 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "2.5.8",
+    "express": "~3.4.8",
     "jade": ">= 0.0.1"
   },
   "devDependencies": {
+    "bcrypt": "^0.8.5",
     "bower": "^1.7.9",
+    "connect-livereload": "^0.5.4",
+    "connect-mongo": "^1.1.0",
+    "connect-multiparty": "^2.0.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-connect": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-nodemon": "^0.4.2",
     "moment": "^2.11.2",
     "mongoose": "^4.4.2",
     "node-gyp": "^3.2.1"

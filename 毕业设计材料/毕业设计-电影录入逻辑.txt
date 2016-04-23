@@ -1,0 +1,163 @@
+1./admin/movie中创建movie对象，保存电影详情。
+在app.js中设置路由/admin/movie，浏览器访问路由http:localhost:3000/admin/movie即可访问电影录入页也就是admin.jade经过编译成html后的代码
+
+路由器中通过
+app.get("/admin/movie", function(req, res){
+  res.render("admin",{
+    title:"电影录入",
+    layout:false,
+    movie:{
+      title:"",
+      doctor:"",
+      country:"",
+      year:"",
+      poster:"",
+      flash:"",
+      summary:"",
+      language:""
+    }
+  });
+});
+
+设置了http:localhost:3000/admin/movie（admin.jade页面中）的movie对象，
+
+在admin.jade的表单中通过movie.title的方式给movie对象传递相应的对象属性值。例如：
+
+ label.col-sm-2.control-label(for="inputTitle") 电影名字
+          .col-sm-10
+            input#inputTitle.form-control(type="text",name="movie[title]",value=movie.title)
+
+将所有的值赋值给movie对象后，提交到创建页面，创建一部新的电影。
+
+2.提交给/admin/movie/new进行处理
+
+直接通过将form表单的action属性设置成相应的地址提交。
+form.form-horizontal(method="post",action="/admin/movie/new")
+提交表单后，在app.js中设置路由/admin/movie/new，作为创建页面，接受这个表单请求，对创建电影进行的处理。
+
+3.建造数据模型
+
+对数据进行处理，通过mongoose建造需要的数据模型，
+有以下两步：
+
+一、创建在schema，schema一种以文件形式存储的数据库模型骨架，不具备数据库的操作能力。
+二、将创建好的schema发布生成model,Schema是发布生成的模型，具有抽象属性和行为的数据库操作对。
+
+第一步：在schemas/movies.js中，通过一下代码完成创建schema的过程：
+
+//引入mongoose
+var mongoose = require("mongoose");
+
+//建造schema
+var Movieschema = new mongoose.Schema({
+	doctor: String,
+	title: String,
+	language: String,
+	country: String,
+	summary: String,
+	flash: String,
+	poster: String,
+	year: Number,
+	meta: {
+		createAt:{
+			type: Date,
+			default: Date.now()
+		},
+		updateAt:{
+			type: Date,
+			default: Date.now()
+		}
+	}
+});
+同时给schema添加一些静态方法，
+Movieschema.statics = {
+  fetch: function (cb){
+    return this
+      .find({})
+      .sort("meta.updateAt")
+      .exec(cb);
+  },
+  findById: function (id, cb){
+    return this
+      .findOne({_id: id})
+      .exec(cb);
+  }
+}
+这就完成了创建schema的过程。
+
+为了将Movieschema声明成一个模块，供其他模块使用，这里主要是为下面一步将schema创建成model做准备。
+
+module.exports = Movieschema;
+
+第二步：在model/movie.js中引入刚才的包含schema的文件
+var MovieSchema = require("../schemas/movie");
+通过mongoose的model方法，将创建好的MovieSchema发布生成model。
+var Movie = mongoose.model("Movie", MovieSchema);
+
+同样的为了使其他模块能够使用刚刚创建的movie模型，通过
+module.exports = Movie;
+将其声明成一个模块。
+
+4./admin/movie/new中处理提交的数据对象。
+
+模型建立好了以后，就可以在/admin/movie/new中进行处理。
+app.js中包含了/admin/movie/new的路由，在这里来进行提交过来的表单的数据对象的逻辑处理。
+
+// 创建或修改一部新电影
+app.post("/admin/movie/new", function(req, res){
+
+  var id = req.body.movie._id;
+  var movieObj = req.body.movie;
+  var _movie;
+
+  console.log("创建页或修改页的req.body._id: "+id);
+
+  //如果该电影存在，也就是电影修改
+  if( id != ""){
+    Movie.findById(id, function(err, movie){
+      if(err){
+        console.log(err);
+      }
+
+    //用另外的对象里面的字段替换调原来的字段
+    //.extend(原来的对象，新post的对象)
+      _movie = _.extend(movie, movieObj);
+
+      console.log("替代旧对象", _movie);
+
+        _movie.save(function(err, movie){
+        if(err){
+          console.log(err);
+        }
+        
+        //跳转到列表页
+         res.redirect("/admin/list");
+      });
+
+    });
+  }
+
+  //如果该电影不存在，创建一部新电影存入数据库
+  else{
+
+    _movie = new Movie({
+      doctor: movieObj.doctor,
+      title: movieObj.title,
+      country: movieObj.country,
+      language: movieObj.language,
+      year: movieObj.year,
+      poster: movieObj.poster,
+      summary: movieObj.summary,
+      flash: movieObj.flash
+    })
+
+    _movie.save(function(err, movie){
+        if(err){
+          console.log(err);
+        }
+        //跳转到详情页
+         res.redirect("/movie/" + movie._id);
+      });
+  }
+});
+

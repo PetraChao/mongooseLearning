@@ -1,0 +1,8 @@
+block content
+  .container
+    .row
+        .col-md-7
+          p 电影已经存在,即将跳转到电影修改页...
+          form(action="/admin/update/#{movieId}" method="get" name="jumpUpdate")
+            input(type="hidden" name="movieObjString" value="#{movieObjString}")
+    script(type="text/javascript") setTimeout(function(){var movieForm=document.forms["jumpUpdate"];movieForm.submit();} ,2000);

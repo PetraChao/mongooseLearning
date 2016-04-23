@@ -1,0 +1,25 @@
+1.回调函数的写法
+调用comparePassword写上函数实例
+user.comparePassword(password, function(err, isMatch){
+    if(err){
+        console.log(err);
+    }
+    if(isMatch){
+        return res.redirect("/");
+    }
+    else{
+        console.log("密码不正确");
+    }
+});
+
+后台如何产生一个回调方法呢？
+接受后在程序处理过程中调用就好
+UserSchema.methods = {
+  comparePassword: function(_password, cb) {
+    //在app.js中UserSchema的实例对象
+    bcrypt.compare(_password, this.password, function(err, isMatch) {
+      if (err) return cb(err)
+      cb(null, isMatch)
+    })
+  }
+}

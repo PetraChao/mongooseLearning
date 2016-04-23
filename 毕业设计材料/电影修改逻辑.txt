@@ -1,0 +1,158 @@
+ 1.从list页面过来的修改电影：
+ 在app.js中，设置路由和渲染逻辑：
+//列表页
+app.get("/admin/list", function(req, res){
+  Movie.fetch(function(err, movies){
+    if(err){
+      console.log(err);
+    }
+
+    res.render("list", {
+      title:"电影列表页",
+      layout:false,
+      movies: movies
+    });
+
+  });
+});
+
+在list.jade中提交请求并传入id：
+ td: a(href="../admin/update/#{item._id}") 修改
+
+ 在app.js的app.get("/admin/update/:id"）路由中，通过id查找数据库中相应movie数据：
+ app.get("/admin/update/:id", function(req, res){
+  var id = req.params.id;
+  if(id){
+    Movie.findById(id, function(err, movie){
+      res.render("admin", {
+        layout:false,
+        title:"修改页面",
+        movie: movie
+      });
+    });
+  }
+});
+在admin.jade中接受，使用下列方式赋值
+ input#inputTitle.form-control(type="text",name="movie[title]",value=movie.title)
+赋值后通过表单方式    form.form-horizontal(method="post",action="/admin/movie/new" , , enctype="multipart/form-data", style="margin-bottom:100px;")提交到创建、修改逻辑处理页面：
+
+// 创建或修改一部新电影
+app.post("/admin/movie/new", function(req, res){
+
+  var id = req.body.movie._id;
+  var movieObj = req.body.movie;
+  var _movie;
+
+  //id不为空，则为电影修改，id由td: a(href="../admin/update/#{item._id}") 修改
+  //传入给admin页面，由var id = req.body.movie._id;取出将包含movie._id的movie对象从数据库取出
+  //通过 req.body.movie._id将发送请求页面的movie取出来 
+
+  //修改电影
+  if( id != ""){
+    console.log("id不为空");
+    Movie.findById(id, function(err, movie){
+      if(err){
+        console.log(err);
+      }
+
+    //用另外的对象里面的字段替换调原来的字段
+    //.extend(原来的对象，新post的对象)
+      _movie = _.extend(movie, movieObj);
+//存入数据库
+        _movie.save(function(err, movie){
+        if(err){
+          console.log(err);
+        }
+        
+        //跳转xiugaic
+         res.redirect("/movie/update-successfully");
+      });
+
+    });
+  }
+  });
+
+
+
+
+
+2.从录入页面因有相同电影名字而跳转过来的页面
+在录入页admin.jade中有
+      form.form-horizontal(method="post",action="/admin/movie/new" , , enctype="multipart/form-data", style="margin-bottom:100px;")
+ 提交post请求到 "/admin/movie/new" 页面，
+
+在app.js中，设置为路由/admin/movie/new"的逻辑处理程序为：
+// 创建或修改一部新电影
+app.post("/admin/movie/new", function(req, res){
+  var id = req.body.movie._id;
+  var movieObj = req.body.movie;
+  var _movie;
+
+
+//此时因为movie还未存入数据库，所以没有id属性
+  if( id != ""){...}
+  else{
+    var movieTitle = movieObj.title;
+    //根据电影名，查询是否存在该电影
+    Movie.findOne({'title':movieTitle}, function(err, movie){
+      //如果电影存在,将查到的电影保存在movieObjString里面，此时id不为空
+      if(movie != null ){
+        id = movie._id;
+        var movieObjString = encodeURI(JSON.stringify(movieObj));
+        console.log(movieObjString);
+        res.redirect("/movie/update-page/" + id +"?movieObjString="+movieObjString);
+      }
+      else{...
+      }
+    });
+
+  }
+});
+  跳转到/movie/update-page后，由value将已经填写的值，填写到表单中，增加用户体验：
+          form(action="/admin/update/#{movieId}" method="get" name="jumpUpdate")
+            input(type="hidden" name="movieObjString" value="#{movieObjString}")
+    script(type="text/javascript") setTimeout(function(){var movieForm=document.forms["jumpUpdate"];movieForm.submit();} ,2000);
+    在app.js中设置路由/admin/update/#{movieId}的处理程序
+  if(req.query){
+    var movie = JSON.parse(req.query.movieObjString);
+    res.render("admin", {
+        layout:false,
+        title:"修改页面",
+        movie: movie
+      });
+  }
+通过form提交表单到/admin/update/#{movieId}，渲染的还是admin页面，
+在admin.jade中有
+form.form-horizontal(method="post",action="/admin/movie/new" , , enctype="multipart/form-data", style="margin-bottom:100px;")
+提交到"/admin/movie/new"路由中，
+
+app.post("/admin/movie/new", function(req, res){
+
+  var id = req.body.movie._id;
+  var movieObj = req.body.movie;
+  var _movie;
+
+  //id不为空，修改电影
+  if( id != ""){
+    console.log("id不为空");
+    Movie.findById(id, function(err, movie){
+      if(err){
+        console.log(err);
+      }
+
+    //用另外的对象里面的字段替换调原来的字段
+    //.extend(原来的对象，新post的对象)
+      _movie = _.extend(movie, movieObj);
+
+        _movie.save(function(err, movie){
+        if(err){
+          console.log(err);
+        }
+        
+        //跳转xiugaic
+         res.redirect("/movie/update-successfully");
+      });
+
+    });
+  }
+});

@@ -6,8 +6,7 @@ var ObjectId = Schema.Types.ObjectId;
 var CommentSchema = new Schema({
 	//建立关联数据的索引
 	movie:{type:ObjectId, ref:"Movie"},
-	from: {type:ObjectId, ref:"User"},
-	to: {type:ObjectId, ref:"User"},
+	from:{type:ObjectId, ref:"User"},
 	content: String,
 	meta: {
 		createAt:{

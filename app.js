@@ -317,20 +317,28 @@ app.get("/logout", function(req, res){
 //详情页
 app.get("/movie/:id", function(req, res){
   var id = req.params.id;
-
   Movie.findById(id, function(err, movie){
     if(err){
       console.log(err);
     }
-
-    res.render("detail",{
-      title:movie.title,
-      layout:false,
-      movie: movie
+    //通过populate方法查询关联表，其中用comment的from字段作为id查询，返回关联user表name属性值
+    Comment
+    .find({movie: id})
+    .populate("from", "name")
+    .exec(function(err, comments){
+        if(err){
+          console.log(err);
+        }
+        res.render("detail",{
+            title:movie.title,
+            layout:false,
+            movie: movie,
+            comments: comments
+        });
     });
-
   });
 });
+
 
 //用户列表页面
 app.get("/admin/userlist", function(req, res){
@@ -382,16 +390,22 @@ app.delete("/admin/list", function(req, res){
 //提交评论
 app.post('/user/comment', function(req,res){
   var _comment = req.body.comment;
+
+  console.log("_comment:", _comment);
+
   var movieId = _comment.movie;
+
   var comment = new Comment(_comment);
 
-   _movie.save(function(err, comment){
+      console.log("comment:", comment);
+   comment.save(function(err, comment){
       if(err){
-        console.log(err);
+        console.log("comment error 评论去", err);
       }
       res.redirect("/movie/"+ movieId);
     });
 });
+
 app.listen(3000, function(){
   console.log("Express server listening on port 3000");
 });

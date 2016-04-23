@@ -87,7 +87,7 @@ app.post('/user/comment', function(req,res){
     });
 });
 
-在进入详情页面时读取comment数据，展示出来
+
 
 //详情页
 app.get("/movie/:id", function(req, res){

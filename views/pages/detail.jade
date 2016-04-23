@@ -5,7 +5,27 @@ block content
   .container
     .row
         .col-md-7
-          embed(src="#{movie.flash}", allowFullScreen="true", quality="high", width="720", height="600", align="middle", type="application/x-shockwave-flash")
+          embed(src="#{movie.flash}", wmode="Opaque", allowFullScreen="true", quality="high", width="720", height="600", align="middle", type="application/x-shockwave-flash")
+          .panel.panel-heading
+          h3 评论区
+          .panel-body
+            ul.media-list
+              each item in comments
+                li.media
+                  .pull-left
+                    h4 #{item.from.name}
+                    p #{item.content}
+          form#commentForm(method="POST", action="/user/comment")
+            param(name=" wmode"  value=" transparent")
+            input(type="hidden", name="comment[movie]", value="#{movie._id}")
+            if user
+              input(type="hidden", name="comment[from]", value="#{user._id}")
+              .form-group
+                textarea.form-control(name="comment[content]", row="3")
+                button.btn.btn-primary(type="submit") 提交
+            else
+                a.btn.btn-primary(href="#", data-toggle="modal", data-target="#signinModal") 登录后评论
+          p(class="tesdddddddddddddd", style="margin-bottom:100px;")
         .col-md-5
           dl.dl-horizontal
             dt 电影名字

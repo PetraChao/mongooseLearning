@@ -1,0 +1,13 @@
+extends ../overview
+
+block content
+  .container
+    .row
+      form.form-horizontal(method="post",action="/admin/category" , , enctype="multipart/form-data", style="margin-bottom:100px;")
+        .form-group
+          label.col-sm-2.control-label(for="inputCategory") 电影类型
+          .col-sm-10
+            input#inputCategory.form-control(type="text",name="category[name]",value=category.name, required="required")
+        .form-group
+          .col-sm-offset-2.col-sm-10
+          button.btn.btn-default(type="submit") 录入

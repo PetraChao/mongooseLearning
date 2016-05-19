@@ -6,7 +6,7 @@ block content
       table.table.table-hover.table-bordered
         thead
             tr
-              th 电影名字
+              th 电影分类
               th 导演
               th 国家
               th 上映年份
@@ -15,9 +15,9 @@ block content
               th 更新
               th 删除
          tbody
-            each item in movies
+            each item in categories
               tr(class="item-id-#{item._id}")
-                  td #{item.title}
+                  td #{item.name}
                   td #{item.doctor}
                   td #{item.country}
                   td #{item.year}
@@ -26,5 +26,5 @@ block content
                   td: a(href="../admin/update/#{item._id}") 修改
                   td: button.btn.btn-danger.del(type="button", data-id="#{item._id}") 删除
     .row(style="margin-bottom:100px;")
-      a.btn.btn-primary(href="../admin/movie") 添加新电影
-    script(src="/js/admin.js")
+      a.btn.btn-primary(href="../category/new") 添加新分类
+    script(src="/js/category.js")

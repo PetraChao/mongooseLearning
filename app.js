@@ -65,6 +65,7 @@ app.use(express.session({
 var Movie =require("./models/movie");
 var User = require("./models/user");
 var Comment = require("./models/comment");
+var Category = require("./models/category");
 //pre handle user,预处理所有的页面，如用户已经登录过，从session中取值赋值给本地变量
 app.use(function(req, res, next){
   //调用req.session时，cookieParse将connect.sid解析成sessionid,通过sessionid从数据库中查找相应的session值
@@ -75,63 +76,81 @@ app.use(function(req, res, next){
     next();
 });
 app.get("/", function(req, res){
-
-  Movie.fetch(function(err, movies){
+  Category
+  .find({})
+  .populate({path: "movies", options: {limit: 6}})
+  .exec(function(err, categories){
     if(err){
       console.log("index error:"+err);
     }
-
     res.render("index", {
       title:"pc电影网",
       layout:false,
-      movies: movies
+      categories: categories
     });
   });
 });
 
 app.get("/admin/movie", function(req, res){
-  res.render("admin",{
-    title:"电影录入",
-    layout:false,
-    movie:{
-      title:"",
-      doctor:"",
-      country:"",
-      year:"",
-      poster:"",
-      flash:"",
-      summary:"",
-      language:""
-    }
+  Category.find({}, function(err, categories){
+    res.render("admin",{
+      title:"电影录入",
+      layout:false,
+      categories: categories,
+      movie:{
+        title:"",
+        doctor:"",
+        country:"",
+        year:"",
+        poster:"",
+        flash:"",
+        summary:"",
+        language:""
+      }
+    });
   });
 });
 
 //admin从列表页点击更新时将数据填入表单中的跳转路由update
 app.get("/admin/update/:id", function(req, res){
   var id = req.params.id;
-  console.log("req.body", req.body);
-  if(req.query){
-    var movie = JSON.parse(req.query.movieObjString);
-    res.render("admin", {
-        layout:false,
-        title:"修改页面",
-        movie: movie
-      });
-  }
-  if(id){
+  console.log(id);
+  console.log("req.body:", req.body);
+  console.log("req.query:", req.query);
+    if(id){
     Movie.findById(id, function(err, movie){
-      res.render("admin", {
-        layout:false,
-        title:"修改页面",
-        movie: movie
+      Category.fetch(function(err, categories){
+        if(err){
+          console.log(err);
+        }
+        res.render("admin", {
+          layout:false,
+          title:"修改页面",
+          movie: movie,
+          categories: categories
+        });
       });
     });
   }
+  else if(req.query){
+    var movie = JSON.parse(req.query.movieObjString);
+      Category.fetch(function(err, categories){
+        if(err){
+          console.log(err);
+        }
+        res.render("admin", {
+          layout:false,
+          title:"修改页面",
+          movie: movie,
+          categories: categories
+        });
+      });
+  }
+
 });
 
 // 创建或修改一部新电影
 app.post("/admin/movie/new", function(req, res){
-  console.log(req.body);
   var id = req.body.movie._id;
   var movieObj = req.body.movie;
   var _movie;
@@ -185,17 +204,27 @@ app.post("/admin/movie/new", function(req, res){
             year: movieObj.year,
             poster: movieObj.poster,
             summary: movieObj.summary,
-            flash: movieObj.flash
+            flash: movieObj.flash,
+            category: movieObj.category
           });
-
+          var categoryId = _movie.category;
+          // console.log("_movie====",_movie,"_movie.save======",_movie.save);
           //将movie对象存入时，因为mongodb是分布式的，所以就没设计成关系数据库那样自增的主键,,会自动给每一条数据生成一个id
           _movie.save(function(err, movie){
+            console.log(movie);
               if(err){
                 console.log(err);
               }
               console.log("创建页save movie._id"+movie._id);
-              //录入成功
-              res.redirect("/movie/new/success/"+ movie._id);
+              console.log("categoryId:", categoryId);
+              Category.findById(categoryId, function(err, category){
+                console.log("category", category);
+                category.movies.push(movie._id);
+                category.save(function(err, category){
+                //录入成功
+                res.redirect("/movie/new/success/"+ movie._id);
+                });
+              });
             });
       }
     });
@@ -258,6 +287,7 @@ app.post('/user/signup', function(req,res){
         if(err){
           console.log(err);
         }
+        console.log("注册成功");
         res.redirect("/");
       });
     }
@@ -314,6 +344,7 @@ app.get("/logout", function(req, res){
     delete app.locals.user;
     res.redirect("/");
 });
+
 //详情页
 app.get("/movie/:id", function(req, res){
   var id = req.params.id;
@@ -321,6 +352,11 @@ app.get("/movie/:id", function(req, res){
     if(err){
       console.log(err);
     }
+    Movie.update({_id: id}, {$inc: {pv: 1}}, function(err){
+      if(err){
+        console.log(err);
+      }
+    });
     //通过populate方法查询关联表，其中用comment的from字段作为id查询，返回关联user表name属性值
     Comment
     .find({movie: id})
@@ -330,8 +366,8 @@ app.get("/movie/:id", function(req, res){
           console.log(err);
         }
         res.render("detail",{
-            title:movie.title,
-            layout:false,
+            title: movie.title,
+            layout: false,
             movie: movie,
             comments: comments
         });
@@ -371,6 +407,7 @@ app.get("/admin/list", function(req, res){
   });
 });
 
+//删除电影
 app.delete("/admin/list", function(req, res){
   var id = req.query.id;
   console.log("delete id:", id);
@@ -404,6 +441,55 @@ app.post('/user/comment', function(req,res){
       }
       res.redirect("/movie/"+ movieId);
     });
+});
+
+//电影分类存储
+app.get("/admin/category/new", function(req, res){
+  res.render("category_admin", {
+    title: "后台分类录入页",
+    category: {}
+  });
+});
+
+app.post("/admin/category", function(req, res){
+  var _category  = req.body.category;
+  var category = new Category(_category);
+  category.save(function(err, category){
+    if(err){
+        console.log(err);
+      }
+      console.log(category);
+      res.redirect("/admin/category/list");
+  });
+});
+
+app.get("/admin/category/list", function(req, res){
+  Category.fetch(function(err, categories){
+    if(err){
+      console.log(err);
+    }
+    res.render("categorylist", {
+      title:"电影分类列表页",
+      layout:false,
+      categories: categories
+    });
+  });
+});
+
+//删除电影分类
+app.delete("/admin/category/list", function(req, res){
+  var id = req.query.id;
+  console.log("delete category id:", id);
+  if(id){
+    Category.remove({_id: id}, function(err, movie){
+      if (err){
+        console.log(err);
+      }
+      else{
+        res.json({success:1});
+      }
+    })
+  }
 });
 
 app.listen(3000, function(){

@@ -1,0 +1,15 @@
+.carousel-control{
+    line-height: 25;
+}
+.carousel-inner>.item{
+    max-height: 510px;
+}
+.thumbnail img{
+    width: 300px;
+}
+.search-form{
+    margin-top: 8px;
+}
+.thumbnail img{
+    min-height: 116px;
+}

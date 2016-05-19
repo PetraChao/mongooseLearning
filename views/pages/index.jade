@@ -2,12 +2,45 @@ extends ../overview
 
 block content
   .container
-    .row
-      each item in movies
-        .col-md-2
-          .thumbnail
-            a(href="/movie/#{item._id}")
-              img(src="#{item.poster}", alt = "#{item.title}")
-           .caption
-              h3 #{item.title}
-              p: a.btn.btn-primary(href="/movie/#{item._id}", role="button") 观看预告片
+    .row 
+      .carousel.slide#myCarousel(data-ride="carousel")
+        ol.carousel-indicators 
+          li.active(data-target="#myCarousel",data-slide-to="0")
+          li(data-target="#myCarousel",data-slide-to="1")
+          li(data-target="#myCarousel",data-slide-to="2")
+          li(data-target="#myCarousel",data-slide-to="3")
+          li(data-target="#myCarousel",data-slide-to="4")
+        .carousel-inner
+          .active.item
+            img(src="img/movie1.jpg")
+            .carousel-caption something1
+          .item
+            img(src="img/movie5.jpg")
+            .carousel-caption something2
+          .item
+            img(src="img/movie4.jpg")
+            .carousel-caption something3
+          .item
+            img(src="img/movie3.jpg")
+            .carousel-caption something4
+          .item
+            img(src="img/movie2.jpg")
+            .carousel-caption something5
+        a.left.carousel-control(href="#myCarousel", data-slide="prev") &lsaquo;
+        a.right.carousel-control(href="#myCarousel", data-slide="next") &rsaquo;
+    .row.page-header.clearfix
+      each cat in categories
+        .panel.panel-default
+          .panel-heading
+            h4 #{cat.name}
+          .panel-body
+            if cat.movies && cat.movies.length > 0
+              each item in cat.movies
+                .col-sm-2
+                  .thumbnail
+                    a(href="/movie/#{item._id}")
+                      img(src="#{item.poster}", alt = "#{item.title}")
+                   .caption
+                      h4.text-center #{item.title}
+                      p.text-center: a.text-center.btn.btn-primary(href="/movie/#{item._id}", role="button") 观看预告片
+   p(style="margin-bottom:100px;")
